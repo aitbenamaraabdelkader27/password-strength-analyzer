@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Analyze technical password strength, understand personal predictability, and generate secure passwords.">
+  <title>Password Strength Analyzer</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <script src="{{ url_for('static', filename='js/app.js') }}" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="/" aria-label="Password Strength Analyzer home">
+        <span class="brand-mark" aria-hidden="true"><span></span></span>
+        <span>Password Strength Analyzer <small>V2</small></span>
+      </a>
+      <span class="local-badge"><span aria-hidden="true"></span> Privacy-first</span>
+    </div>
+  </header>
+
+  <main id="main-content" class="workspace">
+    <section class="intro" aria-labelledby="page-title">
+      <p class="eyebrow">Password security, explained</p>
+      <h1 id="page-title">Build passwords that resist guessing.</h1>
+      <p>Measure technical strength, reveal personal predictability, then create a safer alternative.</p>
+    </section>
+
+    <nav class="main-tabs" role="tablist" aria-label="Password tools">
+      <button id="tab-analyze" role="tab" aria-selected="true" aria-controls="panel-analyze" tabindex="0" data-tab="analyze">Analyze</button>
+      <button id="tab-personalized" role="tab" aria-selected="false" aria-controls="panel-personalized" tabindex="-1" data-tab="personalized">Personalized Analysis</button>
+      <button id="tab-generate" role="tab" aria-selected="false" aria-controls="panel-generate" tabindex="-1" data-tab="generate">Generate</button>
+    </nav>
+
+    <section id="panel-analyze" class="tab-panel" role="tabpanel" aria-labelledby="tab-analyze" data-panel="analyze">
+      <div class="panel-heading"><p class="step-label">01 / Technical strength</p><h2>How strong is your password?</h2><p>See how length, character variety, entropy, and common patterns affect its score.</p></div>
+      <section class="tool-card" aria-label="Password analyzer">
+        <form id="password-form" novalidate>
+          <label for="password">Password to analyze</label>
+          <div class="input-row">
+            <div class="password-control">
+              <input id="password" name="password" type="password" maxlength="{{ max_password_length }}" autocomplete="new-password" autocapitalize="none" spellcheck="false" aria-describedby="privacy-notice form-error" placeholder="Enter a password" required>
+              <button class="icon-button password-toggle" type="button" aria-label="Show password" aria-pressed="false" title="Show password" data-target="password"><span class="eye-icon" aria-hidden="true"></span></button>
+            </div>
+            <button id="analyze-button" class="primary-button" type="submit" disabled><span class="button-label">Analyze password</span><span class="button-loader" aria-hidden="true"></span></button>
+          </div>
+          <p id="form-error" class="form-error" role="alert" aria-live="polite"></p>
+          <p id="privacy-notice" class="privacy-notice"><span class="privacy-icon" aria-hidden="true"></span>Your password is analyzed securely and is never stored. It is processed only in this server's request memory.</p>
+        </form>
+      </section>
+      <section id="results" class="results technical-results" aria-labelledby="results-title" aria-live="polite" hidden>
+        <h2 id="results-title" class="visually-hidden">Analysis results</h2>
+        <div class="score-panel">
+          <div class="score-ring" id="score-ring" aria-label="Password score: 0 out of 100"><div class="score-ring-inner"><strong><span id="score-value">0</span><span class="score-total">/100</span></strong><span>Technical score</span></div></div>
+          <div class="score-summary"><p class="result-label">Strength assessment</p><h3 id="strength-value">Very Weak</h3><div class="score-track" aria-hidden="true"><span id="score-bar"></span></div><p id="entropy-value" class="entropy">Estimated entropy: 0.0 bits</p><p class="entropy-note">A simplified theoretical estimate, not a cracking-time guarantee.</p></div>
+        </div>
+        <div class="details-grid">
+          <section class="detail-section" aria-labelledby="checks-title"><div class="section-heading"><span>01</span><h3 id="checks-title">Core checks</h3></div><ul class="check-list">
+            <li data-check="length"><span class="status-icon" aria-hidden="true"></span>Length (12+)</li><li data-check="uppercase"><span class="status-icon" aria-hidden="true"></span>Uppercase</li><li data-check="lowercase"><span class="status-icon" aria-hidden="true"></span>Lowercase</li><li data-check="digit"><span class="status-icon" aria-hidden="true"></span>Number</li><li data-check="special"><span class="status-icon" aria-hidden="true"></span>Special character</li>
+          </ul></section>
+          <section class="detail-section" aria-labelledby="issues-title"><div class="section-heading"><span>02</span><h3 id="issues-title">Detected issues</h3></div><ul id="issues-list" class="finding-list"></ul></section>
+          <section class="detail-section recommendations-section" aria-labelledby="recommendations-title"><div class="section-heading"><span>03</span><h3 id="recommendations-title">Recommendations</h3></div><ul id="recommendations-list" class="finding-list recommendations-list"></ul></section>
+        </div>
+      </section>
+    </section>
+
+    <section id="panel-personalized" class="tab-panel" role="tabpanel" aria-labelledby="tab-personalized" data-panel="personalized" hidden>
+      <div class="panel-heading"><p class="step-label">02 / Targeted guessing</p><h2>Would someone who knows you guess your password?</h2><p>Attackers may use public information to make password guesses more effective. All profile fields are optional.</p></div>
+      <section class="tool-card">
+        <form id="personalized-form" novalidate>
+          <div class="profile-grid">
+            <div><label for="first-name">First name <span>Optional</span></label><input id="first-name" maxlength="64" autocomplete="off"></div>
+            <div><label for="last-name">Last name <span>Optional</span></label><input id="last-name" maxlength="64" autocomplete="off"></div>
+            <div><label for="username">Username / handle <span>Optional</span></label><input id="username" maxlength="64" autocomplete="off" autocapitalize="none"></div>
+            <div><label for="birth-year">Birth year <span>Optional</span></label><input id="birth-year" inputmode="numeric" pattern="(?:19|20)[0-9]{2}" maxlength="4" placeholder="YYYY" autocomplete="off"></div>
+            <div class="full-field"><label for="personal-keywords">Personal keywords <span>Optional · up to 5, comma-separated</span></label><input id="personal-keywords" maxlength="164" autocomplete="off" placeholder="team, hobby, pet nickname"></div>
+            <div class="full-field"><label for="personal-password">Password to assess</label><div class="password-control"><input id="personal-password" type="password" maxlength="{{ max_password_length }}" autocomplete="new-password" autocapitalize="none" spellcheck="false" required><button class="icon-button password-toggle" type="button" aria-label="Show password" aria-pressed="false" title="Show password" data-target="personal-password"><span class="eye-icon" aria-hidden="true"></span></button></div></div>
+          </div>
+          <button id="personalized-button" class="primary-button submit-wide" type="submit" disabled><span class="button-label">Analyze personalized risk</span><span class="button-loader" aria-hidden="true"></span></button>
+          <p id="personalized-error" class="form-error" role="alert" aria-live="polite"></p>
+          <p class="privacy-notice"><span class="privacy-icon" aria-hidden="true"></span>Your password and optional profile information are processed in memory by this server only for this analysis. They are never stored.</p>
+        </form>
+      </section>
+      <section id="personalized-results" class="results personalized-results" aria-labelledby="personalized-results-title" aria-live="polite" hidden>
+        <h2 id="personalized-results-title" class="visually-hidden">Personalized analysis results</h2>
+        <div class="metric-grid">
+          <article><span>Technical strength</span><strong id="personal-technical-score">0 / 100</strong><small id="personal-technical-label">Very Weak</small></article>
+          <article><span>Personal predictability</span><strong id="personal-risk">Low</strong><small id="personal-penalty">No penalty</small></article>
+          <article class="featured-metric"><span>Personalized assessment</span><strong id="personalized-score">0 / 100</strong><small>Technical score minus explained personal-risk penalties</small></article>
+        </div>
+        <div class="details-grid">
+          <section class="detail-section"><div class="section-heading"><span>01</span><h3>Detected personal patterns</h3></div><ul id="personal-patterns" class="finding-list"></ul></section>
+          <section class="detail-section"><div class="section-heading"><span>02</span><h3>Score adjustments</h3></div><ul id="personal-penalties" class="finding-list"></ul></section>
+          <section class="detail-section recommendations-section"><div class="section-heading"><span>03</span><h3>Recommendations</h3></div><ul id="personal-recommendations" class="finding-list recommendations-list"></ul></section>
+        </div>
+      </section>
+    </section>
+
+    <section id="panel-generate" class="tab-panel" role="tabpanel" aria-labelledby="tab-generate" data-panel="generate" hidden>
+      <div class="panel-heading"><p class="step-label">03 / Safer alternative</p><h2>Create a password you can actually use.</h2><p>Choose fully random characters or independently selected memorable words. Neither mode uses personal profile information.</p></div>
+      <section class="tool-card generator-card">
+        <div class="mode-switch" role="tablist" aria-label="Generator mode">
+          <button id="generator-tab-random" type="button" role="tab" aria-selected="true" aria-controls="random-options" tabindex="0" data-generator-mode="random">Random Password</button>
+          <button id="generator-tab-passphrase" type="button" role="tab" aria-selected="false" aria-controls="passphrase-options" tabindex="-1" data-generator-mode="passphrase">Memorable Passphrase</button>
+        </div>
+        <form id="generator-form">
+          <fieldset id="random-options" class="generator-options" aria-labelledby="generator-tab-random">
+            <div class="range-field"><label for="random-length">Length <output id="random-length-value" for="random-length">20</output></label><input id="random-length" type="range" min="12" max="64" value="20"></div>
+            <div class="choice-grid"><label><input id="use-uppercase" type="checkbox" checked> Uppercase</label><label><input id="use-lowercase" type="checkbox" checked> Lowercase</label><label><input id="use-digits" type="checkbox" checked> Digits</label><label><input id="use-symbols" type="checkbox" checked> Symbols</label></div>
+          </fieldset>
+          <fieldset id="passphrase-options" class="generator-options" aria-labelledby="generator-tab-passphrase" hidden>
+            <div class="select-grid"><div><label for="word-count">Words</label><select id="word-count"><option>3</option><option>4</option><option selected>5</option><option>6</option></select></div><div><label for="separator">Separator</label><select id="separator"><option value="-">Hyphen (-)</option><option value="_">Underscore (_)</option><option value=".">Period (.)</option><option value=" ">Space</option></select></div></div>
+            <div class="choice-grid"><label><input id="capitalize" type="checkbox" checked> Capitalize words</label><label><input id="include-number" type="checkbox" checked> Include number</label><label><input id="include-symbol" type="checkbox" checked> Include symbol</label></div>
+            <p class="education-note">Security comes mainly from independent random word selection. This generator uses a transparent 256-word local pool.</p>
+          </fieldset>
+          <button id="generate-button" class="primary-button submit-wide" type="submit"><span class="button-label">Generate secure password</span><span class="button-loader" aria-hidden="true"></span></button>
+          <p id="generator-error" class="form-error" role="alert" aria-live="polite"></p>
+        </form>
+      </section>
+      <section id="generated-results" class="results generated-results" aria-live="polite" hidden>
+        <div class="generated-output"><div><p class="result-label">Generated securely</p><output id="generated-password" aria-label="Generated password"></output></div><div class="action-row"><button id="copy-generated" type="button" class="secondary-button">Copy</button><button id="regenerate" type="button" class="secondary-button">Regenerate</button><button id="analyze-generated" type="button" class="secondary-button">Analyze</button></div><p id="copy-status" class="visually-hidden" role="status" aria-live="polite"></p></div>
+        <div class="generated-analysis"><div><span>Technical score</span><strong><span id="generated-score">0</span>/100</strong></div><div><span>Strength</span><strong id="generated-strength">Very Weak</strong></div><div><span>Estimated entropy</span><strong id="generated-entropy">0.0 bits</strong></div></div>
+        <p id="generation-entropy" class="entropy-note generation-note"></p>
+        <div class="generated-findings"><h3>Analyzer findings</h3><ul id="generated-issues" class="finding-list"></ul></div>
+      </section>
+    </section>
+
+    <aside class="learning-flow" aria-label="Password security learning path"><span>Analyze weaknesses</span><b aria-hidden="true">→</b><span>Check personal predictability</span><b aria-hidden="true">→</b><span>Generate a safer alternative</span></aside>
+  </main>
+  <footer><p>Built as a cybersecurity learning project.</p><p>No database &middot; No telemetry &middot; No third-party APIs</p></footer>
+</body>
+</html>
